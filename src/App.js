@@ -1,12 +1,14 @@
 import "./App.css";
 import { Component } from "react";
+import { Card, Message } from "semantic-ui-react";
+import Recherche from "./Components/Recherche";
 
 class App extends Component {
   state = { data: [], error: "" };
 
-  getArtistId = async (nomArtiste, choice, market) => {
+  getArtistId = async (nomArtiste, type, market) => {
     const accessToken = "TON_TOKEN_ICI"; // remplace par ton token
-    if (nomArtiste) {
+    if (nomArtiste && type && market) {
       try {
         let response = await fetch(
           `https://api.spotify.com/v1/search?q=${encodeURIComponent(
@@ -23,7 +25,7 @@ class App extends Component {
         const artist = donnee.artists.items[0];
         const artistId = artist.id;
 
-        if (choice === "albums") {
+        if (type === "albums") {
           let res = await fetch(
             `https://api.spotify.com/v1/artists/${artistId}/albums`,
             {
@@ -35,7 +37,7 @@ class App extends Component {
           let albumsDonnee = await res.json();
           const albums = albumsDonnee.items;
           this.setState({ albums, error: "" });
-        } else if (choice === "tracks") {
+        } else if (type === "tracks") {
           let res = await fetch(
             `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=${market}`,
             {
@@ -50,7 +52,7 @@ class App extends Component {
         this.setState({ error: "Connexion non aboutie avec l'Api" });
       }
     } else {
-      this.setState({ error: "Veuillez écrire le nom d'un artiste" });
+      this.setState({ error: "Veuillez remplir tous les champs" });
     }
   };
 
@@ -62,6 +64,13 @@ class App extends Component {
     return (
       <div>
         <h1>Spotify</h1>
+        <Recherche
+          onPropagateToParent={this.getArtistId}
+          onViderProps={this.onViderFunction}
+        />
+        {this.state.error ? (
+          <Message warning>{this.state.error}</Message>
+        ) : undefined}
       </div>
     );
   }
