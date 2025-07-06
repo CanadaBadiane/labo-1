@@ -2,6 +2,7 @@ import "./App.css";
 import { Component } from "react";
 import { Card, Message } from "semantic-ui-react";
 import Recherche from "./Components/Recherche";
+import Musique from "./Components/Musique";
 
 class App extends Component {
   state = { data: [], error: "" };
@@ -60,6 +61,28 @@ class App extends Component {
     this.setState({ data: [], error: "" });
   };
 
+  retournerResultat = () => {
+    const data =
+      this.state.type === "albums" ? this.state.albums : this.state.topTracks;
+
+    return data.map((element) => (
+      <Musique
+        key={element.id}
+        type={this.state.albums?.length > 0 ? "album" : "track"}
+        properties={{
+          titre: element.name,
+          image: element.images?.[0]?.url,
+          artiste: element.artists?.[0]?.name,
+          nbTempsChansons: element.total_tracks || element.duration_ms,
+          annee:
+            this.state.type === "albums"
+              ? element.release_date?.slice(0, 4)
+              : undefined,
+        }}
+      />
+    ));
+  };
+
   render() {
     return (
       <div>
@@ -70,6 +93,9 @@ class App extends Component {
         />
         {this.state.error ? (
           <Message warning>{this.state.error}</Message>
+        ) : undefined}
+        {this.state.data.length > 0 ? (
+          <Card.Group>{this.retournerResultat()}</Card.Group>
         ) : undefined}
       </div>
     );
