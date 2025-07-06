@@ -1,4 +1,5 @@
 import { Card, Image } from "semantic-ui-react";
+import { useState } from "react";
 
 const Musique = (props) => {
   const [voirAnnee, setVoirAnnee] = useState(false);
@@ -6,6 +7,8 @@ const Musique = (props) => {
   const afficherAnnee = () => {
     setVoirAnnee(!voirAnnee);
   };
+
+  let duree = null;
 
   if (props.type === "track" && props.duration_ms) {
     const minutes = Math.floor(props.duration_ms / 60000);
@@ -24,7 +27,7 @@ const Musique = (props) => {
       <Card.Content extra>
         <a>
           <i className="music icon"></i>
-          {props.type === "album"
+          {props.type === "albums"
             ? `${props.nbTempsChansons} chansons`
             : duree
             ? `Durée : ${duree}`
