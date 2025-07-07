@@ -4,3 +4,7 @@
   display: flex;
   justify-content: space-between;
 }
+
+.champ-artiste {
+  width: 250px;
+}

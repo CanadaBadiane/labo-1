@@ -5,10 +5,18 @@ import Recherche from "./Components/Recherche";
 import Musique from "./Components/Musique";
 
 class App extends Component {
-  state = { data: [], error: "" };
+  state = {
+    data: [],
+    error: "",
+    albums: [],
+    topTracks: [],
+    type: "",
+  };
 
   getArtistId = async (nomArtiste, type, market) => {
-    const accessToken = "TON_TOKEN_ICI"; // remplace par ton token
+    console.log(market);
+    const accessToken = process.env.REACT_APP_SPOTIFY_TOKEN;
+
     if (!nomArtiste || !type || !market) {
       this.setState({ error: "Veuillez remplir tous les champs" });
       return;
@@ -28,18 +36,23 @@ class App extends Component {
       let donnee = await response.json();
       this.setState({ data: donnee, error: "" });
       const artist = donnee.artists.items[0];
-      if (!artist) {
+      if (!artist || artist.name.toLowerCase() !== nomArtiste.toLowerCase()) {
         this.setState({
-          error: `Erreur 404 : l'artiste "${nomArtiste}" n'existe pas`,
+          error: `Aucun artiste trouvé pour "${nomArtiste}"`,
+          albums: [],
+          topTracks: [],
+          type: "",
         });
         return;
       }
+
+      this.setState({ type });
 
       const artistId = artist.id;
 
       if (type === "albums") {
         let res = await fetch(
-          `https://api.spotify.com/v1/artists/${artistId}/albums`,
+          `https://api.spotify.com/v1/artists/${artistId}/albums?market=${market}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -66,22 +79,26 @@ class App extends Component {
   };
 
   onViderFunction = () => {
-    this.setState({ data: [], error: "" });
+    this.setState({ data: [], error: "", albums: [], topTracks: [] });
   };
 
   retournerResultat = () => {
     const data =
       this.state.type === "albums" ? this.state.albums : this.state.topTracks;
 
-    return data.map((element) => (
+    return (data || []).map((element) => (
       <Musique
         key={element.id}
-        type={this.state.albums?.length > 0 ? "album" : "track"}
+        type={this.state.albums?.length > 0 ? "albums" : "tracks"}
         properties={{
           titre: element.name,
-          image: element.images?.[0]?.url,
+          image:
+            this.state.type === "albums"
+              ? element.images?.[0]?.url
+              : element.album?.images?.[0]?.url,
           artiste: element.artists?.[0]?.name,
-          nbTempsChansons: element.total_tracks || element.duration_ms,
+          duration_ms: element.duration_ms,
+          total_tracks: element.total_tracks,
           annee:
             this.state.type === "albums"
               ? element.release_date?.slice(0, 4)
@@ -102,9 +119,10 @@ class App extends Component {
         {this.state.error ? (
           <Message warning>{this.state.error}</Message>
         ) : undefined}
-        {this.state.data.length > 0 ? (
+        {(this.state.albums?.length > 0 ||
+          this.state.topTracks?.length > 0) && (
           <Card.Group>{this.retournerResultat()}</Card.Group>
-        ) : undefined}
+        )}
       </div>
     );
   }

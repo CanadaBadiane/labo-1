@@ -8,30 +8,35 @@ const Musique = (props) => {
     setVoirAnnee(!voirAnnee);
   };
 
+  const { titre, image, artiste, total_tracks, annee, duration_ms } =
+    props.properties || {};
+
+  const type = props.type;
+
   let duree = null;
 
-  if (props.type === "track" && props.duration_ms) {
-    const minutes = Math.floor(props.duration_ms / 60000);
-    const secondes = Math.floor((props.duration_ms % 60000) / 1000);
+  if (type === "tracks" && typeof duration_ms === "number") {
+    const minutes = Math.floor(duration_ms / 60000);
+    const secondes = Math.floor((duration_ms % 60000) / 1000);
     duree = `${minutes} min ${secondes} sec`;
   }
 
   return (
-    <Card onClick={props.type === "albums" ? afficherAnnee : undefined}>
-      <Image src={props.image} wrapped ui={false} />
+    <Card onClick={type === "albums" ? afficherAnnee : undefined}>
+      <Image src={image} wrapped ui={false} />
       <Card.Content>
-        <Card.Header>{props.titre}</Card.Header>
-        <Card.Meta>{props.artiste}</Card.Meta>
-        {voirAnnee && <Card.Meta>{props.annee}</Card.Meta>}
+        <Card.Header>{titre}</Card.Header>
+        <Card.Meta>{artiste}</Card.Meta>
+        {voirAnnee && <Card.Meta>{annee}</Card.Meta>}
       </Card.Content>
       <Card.Content extra>
         <a>
           <i className="music icon"></i>
-          {props.type === "albums"
-            ? `${props.nbTempsChansons} chansons`
-            : duree
+          {type === "albums" && total_tracks
+            ? `${total_tracks} chanson(s)`
+            : type === "tracks" && duree
             ? `Durée : ${duree}`
-            : "Durée inconnue"}
+            : null}
         </a>
       </Card.Content>
     </Card>

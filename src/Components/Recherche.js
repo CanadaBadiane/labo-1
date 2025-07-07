@@ -40,6 +40,7 @@ class Recherche extends Component {
           placeHolder="Veuillez entrer le nom de l'artiste"
           value={this.state.artiste}
           onChange={this.onArtisteChange}
+          className="champ-artiste"
         />
         <Select
           placeholder="Choisissez le type de contenu"
